@@ -10,6 +10,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @Configuration
 public class TelegramConfig {
+
     @Bean
     public WeatherBot weatherBot(@Value("${telegram.bot.name}")String botName,
                                  @Value("${telegram.bot.token}")String botToken) {
@@ -22,4 +23,5 @@ public class TelegramConfig {
         }
         return weatherBot;
     }
+
 }

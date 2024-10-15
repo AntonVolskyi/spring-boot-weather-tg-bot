@@ -1,5 +1,10 @@
 package com.springboot.weathertgbot.spring_boot_weather_tg_bot.bot;
 
+import com.springboot.weathertgbot.spring_boot_weather_tg_bot.weather.WeatherGettingByCoordinates;
+import com.springboot.weathertgbot.spring_boot_weather_tg_bot.weather.WeatherGettingBySettlementName;
+import com.springboot.weathertgbot.spring_boot_weather_tg_bot.weather.WeatherGettingStrategy;
+import com.springboot.weathertgbot.spring_boot_weather_tg_bot.weather.model.Weather;
+import org.json.JSONObject;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -19,10 +24,16 @@ public class WeatherBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
         Long chatId = message.getChatId();
-        System.out.println(message);
-        System.out.println(message.getText());
+        WeatherGettingStrategy weatherGettingStrategy;
+        if (message.getLocation() != null) {
+            weatherGettingStrategy = new WeatherGettingByCoordinates();
+        } else {
+            weatherGettingStrategy = new WeatherGettingBySettlementName();
+        }
+        JSONObject jsonWeather = weatherGettingStrategy.getWeather(message);
+        Weather weather = Weather.parseFromJSON(jsonWeather);
         try {
-            execute(new SendMessage(chatId.toString(), "Hello Dude!!!"));
+            execute(new SendMessage(chatId.toString(), weather.toString()));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
