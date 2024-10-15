@@ -4,7 +4,7 @@
 
 ## This is Telegram bot which runs in Spring
 This bot shows the current temperature if you give it coordinates (Attach location from Telegram)
-Will be added:
+</br>Will be added:
 </br>Getting temperature by city name
 </br>A forecast for the next 7 days after receiving the current temperature
 </br>Getting the current weather (rain, snow, cloudiness, humidity, etc.)
