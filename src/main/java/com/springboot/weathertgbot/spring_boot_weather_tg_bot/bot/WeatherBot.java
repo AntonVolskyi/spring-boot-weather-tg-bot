@@ -1,10 +1,8 @@
 package com.springboot.weathertgbot.spring_boot_weather_tg_bot.bot;
 
-import com.springboot.weathertgbot.spring_boot_weather_tg_bot.weather.WeatherGettingByCoordinates;
-import com.springboot.weathertgbot.spring_boot_weather_tg_bot.weather.WeatherGettingBySettlementName;
-import com.springboot.weathertgbot.spring_boot_weather_tg_bot.weather.WeatherGettingStrategy;
+import com.springboot.weathertgbot.spring_boot_weather_tg_bot.service.OpenMeteoService;
 import com.springboot.weathertgbot.spring_boot_weather_tg_bot.weather.model.Weather;
-import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -13,6 +11,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class WeatherBot extends TelegramLongPollingBot {
 
+    @Autowired
+    private OpenMeteoService openMeteoService;
     private String botName;
 
     public WeatherBot(String botName, String botToken) {
@@ -24,14 +24,8 @@ public class WeatherBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
         Long chatId = message.getChatId();
-        WeatherGettingStrategy weatherGettingStrategy;
-        if (message.getLocation() != null) {
-            weatherGettingStrategy = new WeatherGettingByCoordinates();
-        } else {
-            weatherGettingStrategy = new WeatherGettingBySettlementName();
-        }
-        JSONObject jsonWeather = weatherGettingStrategy.getWeather(message);
-        Weather weather = Weather.parseFromJSON(jsonWeather);
+        Weather weather
+                = openMeteoService.weatherByCoordinates(message.getLocation().getLatitude(), message.getLocation().getLongitude());
         try {
             execute(new SendMessage(chatId.toString(), weather.toString()));
         } catch (TelegramApiException e) {
